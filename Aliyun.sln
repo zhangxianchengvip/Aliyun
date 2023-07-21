@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8028FE34-56B6-4908-98CC-B8DE995B33FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aliyun.OSS.Sdk.AspNetCore", "src\Aliyun.OSS.Sdk.AspNetCore\Aliyun.OSS.Sdk.AspNetCore.csproj", "{0F878B44-549E-403F-A82A-6A9106077A38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aliyun.OSS.SDK.AspNetCore", "src\Aliyun.OSS.Sdk.AspNetCore\Aliyun.OSS.SDK.AspNetCore.csproj", "{0F878B44-549E-403F-A82A-6A9106077A38}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{D2FD9660-FFA9-4F1A-80DA-4977F37CF898}"
 EndProject

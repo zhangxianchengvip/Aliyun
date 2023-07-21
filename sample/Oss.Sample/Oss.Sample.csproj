@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Aliyun.OSS.Sdk.AspNetCore\Aliyun.OSS.Sdk.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\src\Aliyun.OSS.Sdk.AspNetCore\Aliyun.OSS.SDK.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>
