@@ -3,11 +3,29 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>OSS</Title>
+    <Authors>zhangxiancheng</Authors>
+    <Description>阿里云对象存储服务注册</Description>
+    <PackageProjectUrl>https://github.com/zhangxianchengvip/Aliyun</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/zhangxianchengvip/Aliyun</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>OSS</PackageTags>
+    <PackageReleaseNotes>阿里云对象存储服务注册</PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Aliyun.OSS.SDK.NetCore" Version="2.13.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

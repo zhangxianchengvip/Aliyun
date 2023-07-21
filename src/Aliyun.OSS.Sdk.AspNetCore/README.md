@@ -1,111 +1,121 @@
-# Confluent.Kafka.AspNetCore   
+# Aliyun.OSS.SDK.AspNetCore
 
 #### 介绍
-#### Confluent.Kafka Asp.Net Core   服务注册扩展
+#### 阿里云对象存储 Asp.Net Core  服务注册扩展
 
 1. 安装
 
-- [Package Manager](https://www.nuget.org/packages/FreeRedis.AspNetCore)
+- [Package Manager](https://www.nuget.org/packages/Aliyun.OSS.SDK.AspNetCore)
 
 ```
-Install-Package Confluent.Kafka.AspNetCore
+Install-Package Aliyun.OSS.SDK.AspNetCore
 ```
 
-- [.NET CLI](https://www.nuget.org/packages/FreeRedis.AspNetCore)
+- [.NET CLI](https://www.nuget.org/packages/Aliyun.OSS.SDK.AspNetCore)
 
 ```
-dotnet add package Confluent.Kafka.AspNetCore
+dotnet add package Aliyun.OSS.SDK.AspNetCore
 ```
 
-2. 注册Confluent.Kafka
+2. 注册服务
 
 ```c#
-// 生产者
-builder.Services.AddConfluentKafkaProducer<string, byte[]>(builder.Configuration);
-//Or 消费者
-builder.Services.AddConfluentKafkaConsumer<Ignore, string>(builder.Configuration);
+builder.Services.AddOSSAliyun(conn =>
+{
+    conn.Endpoint = "oss-cn-beijing.aliyuncs.com";
+    conn.AccessKeySecret = "R28E5Exxxxxxxxxxxqa7terCWfGIVVIh";
+    conn.AccessKeyId = "LTxxxxxxxx5oAG";
+});
 ```
 
-3. 生产者构造函数注入及使用
+3. 构造函数注入OssClient
 
 ```C#
-//注入
-private readonly IProducer<string, byte[]> _progress;
-public WeatherForecastController(IProducer<string, byte[]> progress)
+[Route("api/[controller]/[action]")]
+[ApiController]
+public class FileController : ControllerBase
 {
-  _producer = producer;
-}
-//使用
-[HttpGet(Name = "GetWeatherForecast")]
-public async Task<IEnumerable<WeatherForecast>> Get()
-{
-    var value = Encoding.UTF8.GetBytes("zxc");
-
-    await _progress.ProduceAsync("mc", new Message<string, byte[]> { Key = "zxc", Value = value });
-
-    return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+    private readonly OssClient _ossClient;
+    public FileController(OssClient ossClient)
     {
-       Date = DateTime.Now.AddDays(index),
-       TemperatureC = Random.Shared.Next(-20, 55),
-       Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-    }).ToArray();
-}
-```
-
-4.消费者使用
-
-```C#
-//继承BackgroundService类覆写ExecuteAsync 订阅topic
-public class TopicSub : BackgroundService
-{
-    public IServiceProvider Services { get; }
-    public TopicSub(IServiceProvider services)
-    {
-        Services = services;
+        _ossClient = ossClient;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    [HttpPost]
+    public void CreateBucket(string bucketName)
     {
-        List<string> list = new List<string> { "mc" };
-        using (var scope = Services.CreateScope())
+        try
         {
-            foreach (var item in list)
+            if (!_ossClient.DoesBucketExist(bucketName))
             {
-                var _consumer = scope.ServiceProvider.GetRequiredService<IConsumer<Ignore, string>>();
-
-                await _consumer.StartConsumerLoop
-                (
-                    (s, k) =>
-                    {
-                        Console.WriteLine($"{s}:{k}");
-                        return Task.FromResult(true);
-                    }, item
-                );
+                var result = _ossClient.CreateBucket(bucketName);
+                Console.WriteLine("Create bucket, ETag: {0} ", result.Name);
             }
+            else
+            {
+                Console.WriteLine("bucket Exist, ETag: {0} ", bucketName);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Put object failed, {0}", ex.Message);
+        }
+
+    }
+
+
+    [HttpPost]
+    public void PutObject(IFormFile file)
+    {
+        try
+        {
+            var stream = file.OpenReadStream();
+            // 上传文件。
+            var result = _ossClient.PutObject("onevip", file.FileName, stream);
+            Console.WriteLine("Put object succeeded, ETag: {0} ", result.ETag);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Put object failed, {0}", ex.Message);
         }
     }
 
+    [HttpPost]
+    public void Download()
+    {
+        try
+        {
+            // 下载文件。
+            var result = _ossClient.GetObject("onevip", "FreeRedis.AspNetCore.1.0.0.nupkg");
+            using (var requestStream = result.Content)
+            {
+                using (var fs = System.IO.File.Open($"D:\\{result.Key}", FileMode.OpenOrCreate))
+                {
+                    int length = 4 * 1024;
+                    var buf = new byte[length];
+                    do
+                    {
+                        length = requestStream.Read(buf, 0, length);
+                        fs.Write(buf, 0, length);
+                    } while (length != 0);
+                }
+            }
+            Console.WriteLine("Get object succeeded");
+        }
+        catch (OssException ex)
+        {
+            Console.WriteLine("Failed with error code: {0}; Error info: {1}. \nRequestID:{2}\tHostID:{3}",
+                ex.ErrorCode, ex.Message, ex.RequestId, ex.HostId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Failed with error info: {0}", ex.Message);
+        }
+    }
 
 }
-//注入后台服务
-builder.Services.AddHostedService<TopicSub>();
+
 ```
 
 
-
-
-
-4.配置文件
-
-```json
-{
- "ConfluentKafka": {
-      "BootstrapServers":"",
-       "GroupId":"",
-       "QueueBufferingMaxMessages":10,
-       "MessageTimeoutMs": 5000,
-      "RequestTimeoutMs": 3000
-  }
-}
-```
 
